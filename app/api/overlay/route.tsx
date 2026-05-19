@@ -9,13 +9,26 @@ export const runtime = 'nodejs'
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const portraitUrl = searchParams.get('portrait') ?? ''
-  const country = searchParams.get('country') ?? ''
-  const locale = (searchParams.get('locale') ?? 'fr') as Locale
+  const country     = searchParams.get('country')  ?? ''
+  const locale      = (searchParams.get('locale')  ?? 'fr') as Locale
 
   const copy = getCopy(locale, country)
 
+  // Load font
   const fontPath = path.join(process.cwd(), 'public', 'fonts', 'NunitoSans-Black.ttf')
-  const fontData = readFileSync(fontPath)
+  const fontData  = readFileSync(fontPath)
+
+  // Fetch portrait and convert to base64 data URL so next/og can render it
+  let portraitDataUrl = ''
+  try {
+    const res     = await fetch(portraitUrl)
+    const buffer  = await res.arrayBuffer()
+    const base64  = Buffer.from(buffer).toString('base64')
+    const mime    = res.headers.get('content-type') ?? 'image/jpeg'
+    portraitDataUrl = `data:${mime};base64,${base64}`
+  } catch {
+    portraitDataUrl = portraitUrl // fallback
+  }
 
   return new ImageResponse(
     (
@@ -32,14 +45,14 @@ export async function GET(request: Request) {
         {/* Portrait background */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={portraitUrl}
+          src={portraitDataUrl}
           width={1024}
           height={1024}
           style={{ position: 'absolute', top: 0, left: 0, objectFit: 'cover' }}
           alt=""
         />
 
-        {/* Dark arc — ellipse positioned so only bottom half is visible */}
+        {/* Dark arc */}
         <div
           style={{
             position: 'absolute',
@@ -65,23 +78,13 @@ export async function GET(request: Request) {
             gap: 6,
           }}
         >
-          {/* Headline */}
           <div style={{ display: 'flex', fontSize: 65, fontFamily: 'NunitoSans', fontWeight: 900, lineHeight: 1 }}>
             <span style={{ color: 'white' }}>{copy.prefix}</span>
             <span style={{ color: '#F26A1F' }}>{country}</span>
             {copy.suffix && <span style={{ color: 'white' }}>{copy.suffix}</span>}
           </div>
 
-          {/* Subheadline */}
-          <div
-            style={{
-              color: 'white',
-              fontSize: 32,
-              fontFamily: 'NunitoSans',
-              fontWeight: 900,
-              lineHeight: 1,
-            }}
-          >
+          <div style={{ color: 'white', fontSize: 32, fontFamily: 'NunitoSans', fontWeight: 900, lineHeight: 1 }}>
             {copy.subheadline}
           </div>
         </div>
