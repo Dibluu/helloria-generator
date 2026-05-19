@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "app/api/start/route.ts": { "maxDuration": 10 },
+    "app/api/status/route.ts": { "maxDuration": 10 },
+    "app/api/overlay/route.tsx": { "maxDuration": 30 }
+  }
+}
