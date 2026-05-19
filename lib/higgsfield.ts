@@ -39,11 +39,7 @@ export function buildPrompt(sendCode: string, receiveCode: string, variant: Vari
   )
 }
 
-// Model path — set HIGGSFIELD_MODEL env var to override if 404
-// Try: higgsfield-ai/marketing-studio-image/standard  (default)
-//      higgsfield-ai/soul/standard
-//      higgsfield-ai/soul/2
-const MODEL_PATH = process.env.HIGGSFIELD_MODEL ?? 'higgsfield-ai/marketing-studio-image/standard'
+const MODEL_PATH = process.env.HIGGSFIELD_MODEL ?? 'higgsfield-ai/soul/standard'
 
 export async function submitJob(prompt: string): Promise<string> {
   const res = await fetch(`${API_BASE}/${MODEL_PATH}`, {
@@ -51,8 +47,9 @@ export async function submitJob(prompt: string): Promise<string> {
     headers: {
       Authorization: authHeader(),
       'Content-Type': 'application/json',
+      'Accept': 'application/json',
     },
-    body: JSON.stringify({ prompt, aspect_ratio: '1:1', resolution: '1k' }),
+    body: JSON.stringify({ prompt, aspect_ratio: '1:1', resolution: '1080p' }),
   })
 
   if (!res.ok) throw new Error(`Higgsfield error ${res.status}: ${await res.text()}`)
