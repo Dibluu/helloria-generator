@@ -1,8 +1,14 @@
 import { getSendCountry, getReceiveCountry, SEASON } from './corridors'
 import type { VariantConfig } from './variants'
 
-const API_BASE = process.env.HIGGSFIELD_API_BASE ?? 'https://api.higgsfield.ai'
-const API_KEY  = process.env.HIGGSFIELD_API_KEY  ?? ''
+const API_BASE  = process.env.HIGGSFIELD_API_BASE  ?? 'https://platform.higgsfield.ai'
+const API_KEY   = process.env.HIGGSFIELD_API_KEY   ?? ''
+const API_KEY_ID = process.env.HIGGSFIELD_API_KEY_ID ?? ''
+
+// Authorization: Key {key_id}:{key_secret}
+function authHeader() {
+  return `Key ${API_KEY_ID}:${API_KEY}`
+}
 
 const SEASON_CLOTHING = {
   spring: 'light spring jacket, no hat',
@@ -16,7 +22,7 @@ export function buildPrompt(sendCode: string, receiveCode: string, variant: Vari
   const receive = getReceiveCountry(receiveCode)
   if (!send || !receive) throw new Error('Unknown corridor')
 
-  const clothing = SEASON_CLOTHING[SEASON]
+  const clothing  = SEASON_CLOTHING[SEASON]
   const envPrompt = variant.environment.prompt.replace('{city}', send.city)
 
   return (
@@ -30,30 +36,40 @@ export function buildPrompt(sendCode: string, receiveCode: string, variant: Vari
 }
 
 export async function submitJob(prompt: string): Promise<string> {
-  const res = await fetch(`${API_BASE}/v1/generation/image`, {
+  const res = await fetch(`${API_BASE}/higgsfield-ai/marketing_studio_image/standard`, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${API_KEY}`,
+      Authorization: authHeader(),
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ model: 'marketing_studio_image', prompt, aspect_ratio: '1:1', count: 1 }),
+    body: JSON.stringify({ prompt, aspect_ratio: '1:1', resolution: '1k' }),
   })
-  if (!res.ok) throw new Error(`Higgsfield API error ${res.status}: ${await res.text()}`)
+
+  if (!res.ok) throw new Error(`Higgsfield error ${res.status}: ${await res.text()}`)
+
   const data = await res.json()
-  const jobId = data?.results?.[0]?.id ?? data?.id
-  if (!jobId) throw new Error('No job ID in Higgsfield response')
+  const jobId = data?.request_id
+  if (!jobId) throw new Error('No request_id in Higgsfield response')
   return jobId
 }
 
 export async function getJobStatus(jobId: string): Promise<{ status: string; imageUrl?: string }> {
-  const res = await fetch(`${API_BASE}/v1/jobs/${jobId}`, {
-    headers: { Authorization: `Bearer ${API_KEY}` },
+  const res = await fetch(`${API_BASE}/requests/${jobId}/status`, {
+    headers: { Authorization: authHeader() },
   })
+
   if (!res.ok) throw new Error(`Higgsfield status error ${res.status}`)
+
   const data = await res.json()
-  const gen = data?.generation ?? data
-  if (gen?.status === 'completed') {
-    return { status: 'completed', imageUrl: gen?.results?.rawUrl ?? gen?.imageUrl }
+
+  if (data.status === 'completed') {
+    const imageUrl = data?.images?.[0]?.url
+    return { status: 'completed', imageUrl }
   }
-  return { status: gen?.status ?? 'pending' }
+
+  if (data.status === 'failed' || data.status === 'nsfw') {
+    return { status: 'failed' }
+  }
+
+  return { status: data.status ?? 'queued' }
 }
