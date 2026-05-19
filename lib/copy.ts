@@ -41,6 +41,34 @@ const COPY: Record<Locale, (country: string) => Copy> = {
     prefix: 'Invia denaro in ',
     subheadline: 'Con un tasso esclusivo al tuo primo trasferimento',
   }),
+  tr: () => ({
+    prefix: "Para gönder ",
+    subheadline: 'İlk transferinde özel bir kur avantajıyla',
+  }),
+  hi: () => ({
+    prefix: 'पैसे भेजें ',
+    subheadline: 'पहले ट्रांसफर पर एक्सक्लूसिव रेट के साथ',
+  }),
+  ur: () => ({
+    prefix: 'پیسے بھیجیں ',
+    subheadline: 'پہلی منتقلی پر خصوصی شرح کے ساتھ',
+  }),
+  bn: () => ({
+    prefix: 'টাকা পাঠান ',
+    subheadline: 'প্রথম ট্রান্সফারে এক্সক্লুসিভ রেটে',
+  }),
+  pl: () => ({
+    prefix: 'Wyślij pieniądze do ',
+    subheadline: 'Z ekskluzywnym kursem na pierwszy przelew',
+  }),
+  ro: () => ({
+    prefix: 'Trimite bani în ',
+    subheadline: 'Cu un curs exclusiv la primul tău transfer',
+  }),
+  sw: () => ({
+    prefix: 'Tuma pesa ',
+    subheadline: 'Kwa kiwango cha kipekee kwenye uhamisho wako wa kwanza',
+  }),
 }
 
 export function getCopy(locale: Locale, country: string): Copy {

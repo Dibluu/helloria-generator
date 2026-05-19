@@ -1,4 +1,4 @@
-export type Locale = 'fr' | 'nl' | 'en' | 'ar' | 'de' | 'pt' | 'es' | 'it'
+export type Locale = 'fr' | 'nl' | 'en' | 'ar' | 'de' | 'pt' | 'es' | 'it' | 'tr' | 'hi' | 'ur' | 'bn' | 'pl' | 'ro' | 'sw'
 
 export interface SendCountry {
   code: string
@@ -43,6 +43,8 @@ export const RECEIVE_COUNTRIES: ReceiveCountry[] = [
   { code: 'PE', name: 'Peru',               appearance: 'Latin American Peruvian' },
 ]
 
+export const ALL_LOCALES: Locale[] = ['fr', 'nl', 'en', 'ar', 'de', 'pt', 'es', 'it', 'tr', 'hi', 'ur', 'bn', 'pl', 'ro', 'sw']
+
 export const LOCALE_LABELS: Record<Locale, string> = {
   fr: 'Français',
   nl: 'Nederlands',
@@ -52,6 +54,13 @@ export const LOCALE_LABELS: Record<Locale, string> = {
   pt: 'Português',
   es: 'Español',
   it: 'Italiano',
+  tr: 'Türkçe',
+  hi: 'हिन्दी',
+  ur: 'اردو',
+  bn: 'বাংলা',
+  pl: 'Polski',
+  ro: 'Română',
+  sw: 'Kiswahili',
 }
 
 function currentSeason(): 'spring' | 'summer' | 'autumn' | 'winter' {

@@ -5,7 +5,7 @@ import {
   SEND_COUNTRIES,
   RECEIVE_COUNTRIES,
   LOCALE_LABELS,
-  getLocalesForCorridor,
+  ALL_LOCALES,
   type Locale,
 } from '@/lib/corridors'
 
@@ -20,11 +20,6 @@ export default function Home() {
   const [error, setError] = useState('')
   const [elapsed, setElapsed] = useState(0)
 
-  const availableLocales = getLocalesForCorridor(send, receive)
-
-  useEffect(() => {
-    if (!availableLocales.includes(locale)) setLocale(availableLocales[0])
-  }, [send, receive])
 
   useEffect(() => {
     if (step !== 'generating' && step !== 'compositing') return
@@ -147,22 +142,21 @@ export default function Home() {
           </div>
 
           {/* Language */}
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1.5">
             <label className="text-[11px] font-bold uppercase tracking-widest text-white/35">Language</label>
-            <div className="flex flex-wrap gap-2">
-              {availableLocales.map(l => (
-                <button
-                  key={l}
-                  onClick={() => setLocale(l)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                    locale === l
-                      ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/25'
-                      : 'bg-white/5 border border-white/8 text-white/50 hover:text-white hover:border-white/20'
-                  }`}
-                >
-                  {LOCALE_LABELS[l]}
-                </button>
-              ))}
+            <div className="relative">
+              <select
+                value={locale}
+                onChange={e => setLocale(e.target.value as Locale)}
+                className="w-full appearance-none bg-white/5 border border-white/8 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-orange-500/60 focus:bg-white/8 transition cursor-pointer"
+              >
+                {ALL_LOCALES.map(l => (
+                  <option key={l} value={l} className="bg-gray-900">{LOCALE_LABELS[l]}</option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-white/30">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+              </div>
             </div>
           </div>
 
