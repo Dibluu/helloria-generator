@@ -3,17 +3,17 @@ import { getJobStatus } from '@/lib/higgsfield'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
-  const jobId = searchParams.get('jobId')
+  const raw = searchParams.get('jobIds') ?? ''
+  const jobIds = raw.split(',').filter(Boolean)
 
-  if (!jobId) {
-    return NextResponse.json({ error: 'jobId manquant' }, { status: 400 })
+  if (!jobIds.length) {
+    return NextResponse.json({ error: 'jobIds missing' }, { status: 400 })
   }
 
   try {
-    const result = await getJobStatus(jobId)
-    return NextResponse.json(result)
+    const results = await Promise.all(jobIds.map(id => getJobStatus(id)))
+    return NextResponse.json({ jobs: results })
   } catch (err: any) {
-    console.error('[status]', err)
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
 }
