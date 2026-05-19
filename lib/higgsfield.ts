@@ -5,9 +5,13 @@ const API_BASE  = process.env.HIGGSFIELD_API_BASE  ?? 'https://platform.higgsfie
 const API_KEY   = process.env.HIGGSFIELD_API_KEY   ?? ''
 const API_KEY_ID = process.env.HIGGSFIELD_API_KEY_ID ?? ''
 
-// Authorization: Key {key_id}:{key_secret}
+// Strip any non-ASCII-printable characters (e.g. U+2028 from copy-paste)
+function sanitize(s: string) {
+  return s.replace(/[^\x20-\x7E]/g, '').trim()
+}
+
 function authHeader() {
-  return `Key ${API_KEY_ID}:${API_KEY}`
+  return `Key ${sanitize(API_KEY_ID)}:${sanitize(API_KEY)}`
 }
 
 const SEASON_CLOTHING = {
